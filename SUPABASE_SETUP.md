@@ -29,11 +29,11 @@ Use `SupabaseApi.getInstance()` from Android code:
 - `listMessages(accessToken, roomId, callback)`
 - `sendMessage(accessToken, roomId, senderId, message, callback)`
 
-All calls are asynchronous. Persist the returned `access_token` securely (Android Keystore-backed storage is recommended), and use the returned `user.id` as the user ID. Do not trust a user ID supplied by a text field; derive it from the authenticated session.
+All calls are asynchronous. The new launcher screen currently keeps the access token in memory only, so a process restart requires signing in again. Before release, move token persistence to Android Keystore-backed storage and derive the user ID only from the authenticated session.
 
 ## 3. Existing database
 
-The connected Supabase project already contains `profiles`, `rooms`, `room_members`, and `chat_messages`, with RLS enabled and authenticated-user policies. A database trigger creates the profile when a new Supabase Auth user is created. The adapter uses those existing tables; it does not create duplicate tables or weaken RLS.
+The connected Supabase project already contains `profiles`, `rooms`, `room_members`, and `chat_messages`, with RLS enabled and authenticated-user policies. A database trigger creates the profile when a new Supabase Auth user is created. The adapter uses those existing tables; it does not create duplicate tables or weaken RLS. The text-only launcher screen now supports email sign-up/sign-in, listing and creating public rooms, joining/leaving rooms, and sending/loading text messages. The chat screen has a manual refresh button; Supabase Realtime subscriptions are not wired yet.
 
 ## 4. Audio status
 
