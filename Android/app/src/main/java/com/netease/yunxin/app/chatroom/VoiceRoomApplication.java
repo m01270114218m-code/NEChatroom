@@ -9,7 +9,6 @@ import com.netease.yunxin.app.chatroom.config.AppConfig;
 import com.netease.yunxin.kit.alog.ALog;
 import com.netease.yunxin.kit.entertainment.common.AppStatusManager;
 import com.netease.yunxin.kit.entertainment.common.utils.IconFontUtil;
-import com.netease.yunxin.kit.voiceroomkit.ui.base.NEVoiceRoomUI;
 
 public class VoiceRoomApplication extends Application {
 
@@ -22,15 +21,11 @@ public class VoiceRoomApplication extends Application {
     AppConfig.init(this);
     AppStatusManager.init(this);
     initAuth();
-    initVoiceRoomUI();
+    // NetEase VoiceRoom UI is intentionally not initialized in the text-only Supabase build.
     IconFontUtil.getInstance().init(this);
   }
 
   private void initAuth() {
-    ALog.i(TAG, "initAuth");
-  }
-
-  private void initVoiceRoomUI() {
-    NEVoiceRoomUI.getInstance().init(this);
+    ALog.i(TAG, "Supabase authentication is initialized on demand by SupabaseApi");
   }
 }
