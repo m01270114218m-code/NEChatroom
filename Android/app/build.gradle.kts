@@ -4,10 +4,20 @@
  * found in the LICENSE file.
  */
 
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     kotlin("android")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+val supabaseUrl = localProperties.getProperty("SUPABASE_URL", "")
+val supabasePublishableKey = localProperties.getProperty("SUPABASE_PUBLISHABLE_KEY", "")
 
 android {
     compileSdk = 34
@@ -18,10 +28,13 @@ android {
         versionCode = 160
         versionName = "1.6.0"
         multiDexEnabled = true
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     lint {
@@ -51,5 +64,4 @@ dependencies {
     implementation(project(":voiceroomkit"))
     implementation(project(":voiceroomkit-ui-base"))
     implementation("com.netease.yunxin.kit.copyrightedmedia:copyrightedmedia:1.7.0")
-
 }
