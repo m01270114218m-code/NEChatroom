@@ -152,7 +152,8 @@ public class SupabaseTextActivity extends Activity {
             String title = room.optString("title", "غرفة بدون اسم");
             String description = room.optString("description", "");
             Button open = button(title + (description.isEmpty() ? "" : "\n" + description));
-            open.setOnClickListener(v -> enterRoom(id, title));
+            String ownerId = room.optString("owner_id", "");
+            open.setOnClickListener(v -> enterRoom(id, title, ownerId));
             root.addView(open);
           }
         });
@@ -204,8 +205,9 @@ public class SupabaseTextActivity extends Activity {
         .show();
   }
 
-  private void enterRoom(String roomId, String roomTitle) {
-    api.joinRoom(accessToken, roomId, userId, "member", new SupabaseApi.Result<JSONObject>() {
+  private void enterRoom(String roomId, String roomTitle, String ownerId) {
+    String membershipRole = userId.equals(ownerId) ? "owner" : "member";
+    api.joinRoom(accessToken, roomId, userId, membershipRole, new SupabaseApi.Result<JSONObject>() {
       @Override public void onSuccess(JSONObject ignored) {
         runOnUiThread(() -> {
           currentRoomId = roomId;
