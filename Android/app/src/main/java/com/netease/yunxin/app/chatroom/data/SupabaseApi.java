@@ -276,7 +276,7 @@ public final class SupabaseApi {
           "Supabase is not configured. Add SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to Android/local.properties.");
       return;
     }
-    if (!method.equals("POST") && accessToken == null) {
+    if (path.startsWith("/rest/") && (accessToken == null || accessToken.trim().isEmpty())) {
       result.onError("A signed-in Supabase user is required.");
       return;
     }
