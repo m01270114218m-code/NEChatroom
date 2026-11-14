@@ -190,7 +190,11 @@ public class SupabaseTextActivity extends Activity {
               "public",
               new SupabaseApi.Result<JSONObject>() {
                 @Override public void onSuccess(JSONObject room) {
-                  runOnUiThread(() -> enterRoom(room.optString("id"), room.optString("title", name)));
+                  runOnUiThread(() -> {
+                    currentRoomId = room.optString("id");
+                    currentRoomTitle = room.optString("title", name);
+                    showChat();
+                  });
                 }
                 @Override public void onError(String message) {
                   runOnUiThread(() -> showMessage("تعذر إنشاء الغرفة", message));
@@ -227,8 +231,10 @@ public class SupabaseTextActivity extends Activity {
   private void showChat() {
     LinearLayout root = page(currentRoomTitle == null ? "الغرفة" : currentRoomTitle);
     Button back = button("← العودة إلى الغرف");
-    back.setOnClickListener(v -> showRooms());
+    back.setOnClickListener(v -> leaveCurrentRoom());
     root.addView(back);
+    Button refresh = button("تحديث الرسائل");
+    root.addView(refresh);
     ScrollView scroll = new ScrollView(this);
     LinearLayout messages = new LinearLayout(this);
     messages.setOrientation(LinearLayout.VERTICAL);
@@ -241,6 +247,7 @@ public class SupabaseTextActivity extends Activity {
     composer.addView(message, new LinearLayout.LayoutParams(0, -2, 1));
     composer.addView(send);
     root.addView(composer);
+    refresh.setOnClickListener(v -> loadMessages(messages));
     send.setOnClickListener(v -> {
       String body = message.getText().toString().trim();
       if (body.isEmpty()) return;
@@ -283,6 +290,18 @@ public class SupabaseTextActivity extends Activity {
         runOnUiThread(() -> showMessage("تعذر تحميل الرسائل", error));
       }
     });
+  }
+
+  private void leaveCurrentRoom() {
+    String roomId = currentRoomId;
+    currentRoomId = null;
+    if (roomId != null) {
+      api.leaveRoom(accessToken, roomId, userId, new SupabaseApi.Result<JSONObject>() {
+        @Override public void onSuccess(JSONObject ignored) {}
+        @Override public void onError(String ignored) {}
+      });
+    }
+    showRooms();
   }
 
   private LinearLayout page(String title) {
@@ -344,12 +363,7 @@ public class SupabaseTextActivity extends Activity {
   @Override
   public void onBackPressed() {
     if (currentRoomId != null) {
-      api.leaveRoom(accessToken, currentRoomId, userId, new SupabaseApi.Result<JSONObject>() {
-        @Override public void onSuccess(JSONObject ignored) {}
-        @Override public void onError(String ignored) {}
-      });
-      currentRoomId = null;
-      showRooms();
+      leaveCurrentRoom();
     } else {
       super.onBackPressed();
     }
